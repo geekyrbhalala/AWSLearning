@@ -3,7 +3,6 @@ pool:
 
 variables:
 - group: aws-secrets
-  TF_WORKING_DIR: './IaC'
 
 
 stages:
@@ -17,17 +16,5 @@ stages:
       inputs:
         provider: 'aws'
         command: 'plan'
-        workingDirectory: '$(TF_WORKING_DIR)'
-        environmentServiceNameAzureRM: 'your-azure-service-connection'
-steps:
-# Step 1: Checkout code from GitHub
-- task: Checkout@2
-  inputs:
-    repository: 'your-repo'
-    ref: 'main'
-    path: '$(TF_WORKING_DIR)'
-
-# Step 2: Install Terraform
-- task: TerraformInstaller@1
-  inputs:
-    terraformVersion: 'latest'
+        workingDirectory: '$(System.DefaultWorkingDirectory)\IaC'
+        environmentServiceNameAWS: 'aws-terraform-svc'
