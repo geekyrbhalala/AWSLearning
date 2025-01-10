@@ -135,44 +135,45 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
 }
   
 
+# # EC2 Instance
 
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"] # Owned by Amazon
+# data "aws_ami" "amazon_linux" {
+#   most_recent = true
+#   owners      = ["amazon"] # Owned by Amazon
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
+#   filter {
+#     name   = "name"
+#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+#   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
 
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-}
+#   filter {
+#     name   = "root-device-type"
+#     values = ["ebs"]
+#   }
+# }
 
-# Generate a new SSH key pair locally
-resource "tls_private_key" "example" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
+# # Generate a new SSH key pair locally
+# resource "tls_private_key" "example" {
+#   algorithm = "RSA"
+#   rsa_bits  = 2048
+# }
 
-resource "aws_key_pair" "aws_instance_key" {
-  key_name   = "aws-ec2-instance-key"
-  public_key = tls_private_key.example.public_key_openssh
-}
+# resource "aws_key_pair" "aws_instance_key" {
+#   key_name   = "aws-ec2-instance-key"
+#   public_key = tls_private_key.example.public_key_openssh
+# }
 
-resource "aws_instance" "web" {
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  availability_zone           = "us-east-1a"
-  key_name                    = aws_key_pair.aws_instance_key.key_name
-  vpc_security_group_ids      = [aws_security_group.allow_tls.id]
-  subnet_id = aws_subnet.aws-demo-public-subnet-1.id
-}
+# resource "aws_instance" "web" {
+#   ami                         = data.aws_ami.amazon_linux.id
+#   instance_type               = "t2.micro"
+#   associate_public_ip_address = true
+#   availability_zone           = "us-east-1a"
+#   key_name                    = aws_key_pair.aws_instance_key.key_name
+#   vpc_security_group_ids      = [aws_security_group.allow_tls.id]
+#   subnet_id = aws_subnet.aws-demo-public-subnet-1.id
+# }
