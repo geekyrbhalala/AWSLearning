@@ -1,0 +1,33 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: aws-secrets
+  TF_WORKING_DIR: './IaC'
+
+
+stages:
+- stage: Plan
+  displayName: 'Terraform Plan'
+  jobs:
+  - job: TerraformPlan
+    displayName: 'Run Terraform Plan'
+    steps:
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'aws'
+        command: 'plan'
+        workingDirectory: '$(TF_WORKING_DIR)'
+        environmentServiceNameAzureRM: 'your-azure-service-connection'
+steps:
+# Step 1: Checkout code from GitHub
+- task: Checkout@2
+  inputs:
+    repository: 'your-repo'
+    ref: 'main'
+    path: '$(TF_WORKING_DIR)'
+
+# Step 2: Install Terraform
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: 'latest'
