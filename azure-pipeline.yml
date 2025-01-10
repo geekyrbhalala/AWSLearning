@@ -15,6 +15,14 @@ stages:
     - task: TerraformTaskV4@4
       inputs:
         provider: 'aws'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+        backendServiceAWS: 'aws-terraform-svc'
+        backendAWSBucketName: 'terraform-state-for-demo-vpc'
+        backendAWSKey: 'tf/terraform.tfstate'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'aws'
         command: 'plan'
-        workingDirectory: '$(System.DefaultWorkingDirectory)\IaC'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
         environmentServiceNameAWS: 'aws-terraform-svc'
