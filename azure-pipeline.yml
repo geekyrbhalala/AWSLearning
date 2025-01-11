@@ -3,15 +3,16 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-- name: IsTeardownInfrastructure
-  value: false
-  readonly: false
+parameters:
 - name: IsSetupInfrastructure
-  value: false
-  readonly: false
+  type: boolean
+  default: false
+- name: IsTeardownInfrastructure
+  type: boolean
+  default: false
 
 stages:
+${{ if eq(parameters.IsSetupInfrastructure, true) }}:
 - stage: InfrastructureSetup
   displayName: 'Infrastructure Setup'
   condition: eq(variables['IsSetupInfrastructure'], 'true')
@@ -49,10 +50,9 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
         commandOptions: 'main.tfplan'
         environmentServiceNameAWS: 'aws-terraform-svc'
-
+${{ if eq(parameters.IsTeardownInfrastructure, true) }}:
 - stage: InfrastructureTeardown
   displayName: 'Infrastructure Teardown'
-  condition: eq(variables['IsTeardownInfrastructure'], 'true')
   jobs:
   - job: TerraformIaC
     displayName: 'Run IaC'
