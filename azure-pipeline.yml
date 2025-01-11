@@ -22,7 +22,7 @@ stages:
 
       - task: TerraformTaskV4@4
         name: 'terraformInit'
-        displayName: 'Plan Terraform'
+        displayName: 'Initialize Terraform'
         inputs:
           provider: 'aws'
           command: 'init'         
