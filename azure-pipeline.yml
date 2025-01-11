@@ -28,9 +28,9 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendType: 's3'
           backendServiceAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAwsBucket: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
+          backendAWSDynamoDBTable: 'terraform-locks'
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
@@ -41,7 +41,7 @@ stages:
           commandOptions: '-out main.tfplan'
           backendAWSRegion: 'us-east-1'
           environmentServiceNameAWS: 'aws-terraform-svc'
-          
+
       - task: TerraformTaskV4@4
         displayName: 'Apply Terraform'
         condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
@@ -68,9 +68,9 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendType: 's3'
           backendServiceAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAwsBucket: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
+          backendAWSDynamoDBTable: 'terraform-locks'
 
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
