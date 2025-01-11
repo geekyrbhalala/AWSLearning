@@ -2,7 +2,9 @@
 # Run following command into command prompt
 # setx AWS_ACCESS_KEY_ID "<AWS_Access_Key_id>"
 # setx AWS_SECRET_ACCESS_KEY "<AWS_Secret_Access_Key>"
-
+terraform {
+  backend "local" {}
+}
 provider "aws" {
   region = var.aws_region
 }
