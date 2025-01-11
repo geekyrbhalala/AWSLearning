@@ -15,7 +15,6 @@ stages:
 - ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
   - stage: InfrastructureSetup
     displayName: 'Infrastructure Setup'
-    condition: eq(variables['IsSetupInfrastructure'], 'true')
     jobs:
     - job: TerraformIaC
       displayName: 'Run IaC'
