@@ -20,7 +20,6 @@ stages:
       displayName: 'Run IaC'
       steps:
       - task: TerraformTaskV4@4
-        displayName: 'Initialize Terraform'
         inputs:
           provider: 'aws'
           command: 'init'
@@ -62,7 +61,7 @@ stages:
           provider: 'aws'
           command: 'init'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          backendServiceAWS: 'aws-terraform-svc'
+          backendServiceName: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
 
