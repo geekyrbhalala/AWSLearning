@@ -55,7 +55,7 @@ stages:
           commandOptions: 'main.tfplan'
           backendAWSRegion: 'us-east-1'
           backendType: 's3'
-          backendServiceAWS: 'aws-terraform-svc'
+          environmentServiceNameAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
