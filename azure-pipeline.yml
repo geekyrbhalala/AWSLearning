@@ -40,11 +40,8 @@ stages:
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: '-out main.tfplan'
           backendAWSRegion: 'us-east-1'
-          backendType: 's3'
           environmentServiceNameAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
+          
       - task: TerraformTaskV4@4
         displayName: 'Apply Terraform'
         condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
@@ -53,12 +50,7 @@ stages:
           command: 'apply'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: 'main.tfplan'
-          backendAWSRegion: 'us-east-1'
-          backendType: 's3'
           environmentServiceNameAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
 
 - ${{ if eq(parameters.IsTeardownInfrastructure, true) }}:
   - stage: InfrastructureTeardown
@@ -89,11 +81,7 @@ stages:
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: '-out main.tfplan'
           backendAWSRegion: 'us-east-1'
-          backendType: 's3'
           environmentServiceNameAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
 
       - task: TerraformTaskV4@4
         name: 'terraformDestroy'
@@ -103,8 +91,4 @@ stages:
           command: 'destroy'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           backendAWSRegion: 'us-east-1'
-          backendType: 's3'
           environmentServiceNameAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
