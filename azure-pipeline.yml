@@ -32,6 +32,7 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
+
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
@@ -47,6 +48,7 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
+
       - task: TerraformTaskV4@4
         displayName: 'Apply Terraform'
         condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
@@ -82,6 +84,23 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformPlan'
+        displayName: 'Plan Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          commandOptions: '-out main.tfplan'
+          environmentServiceNameAWS: 'aws-terraform-svc'
+          backendAWSRegion: 'us-east-1'
+          backendType: 's3'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
+
       - task: TerraformTaskV4@4
         name: 'terraformDestroy'
         displayName: 'Destroy Terraform'
@@ -96,5 +115,3 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
-
-    
