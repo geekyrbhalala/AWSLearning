@@ -19,8 +19,10 @@ stages:
     - job: TerraformIaC
       displayName: 'Setup Infrastructure'
       steps:
-      - task: Initialize Terraform
-        displayName: 'Initialize Terraform'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Plan Terraform'
         inputs:
           provider: 'aws'
           command: 'init'         
@@ -31,7 +33,8 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
-      - task: Plan Terraform
+
+      - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
         inputs:
@@ -40,7 +43,9 @@ stages:
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
-      - task: Apply Terraform
+
+      - task: TerraformTaskV4@4
+        name: 'terraformApply'
         displayName: 'Apply Terraform'
         condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
         inputs:
@@ -50,6 +55,8 @@ stages:
           commandOptions: 'main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
+
+#Stage 2 - Teardown Infrasturture
 - ${{ if eq(parameters.IsTeardownInfrastructure, true) }}:
   - stage: InfrastructureTeardown
     displayName: 'Infrastructure Teardown'
@@ -58,6 +65,7 @@ stages:
       displayName: 'Run IaC'
       steps:
       - task: TerraformTaskV4@4
+        name: 'terraformInit'
         displayName: 'Initialize Terraform'
         inputs:
           provider: 'aws'
