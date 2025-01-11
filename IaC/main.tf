@@ -4,7 +4,7 @@
 # setx AWS_SECRET_ACCESS_KEY "<AWS_Secret_Access_Key>"
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 resource "aws_vpc" "demo-vpc" {
