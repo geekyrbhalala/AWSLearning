@@ -1,0 +1,100 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+parameters:
+- name: IsSetupInfrastructure
+  type: boolean
+  default: false
+- name: IsTeardownInfrastructure
+  type: boolean
+  default: false
+
+stages:
+#Stage 1 - Setup Infrastructure
+- ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
+  - stage: InfrastructureSetup
+    displayName: 'Infrastructure Setup'
+    jobs:
+    - job: TerraformIaC
+      displayName: 'Setup Infrastructure'
+      steps:
+
+      - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Initialize Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'init'         
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformPlan'
+        displayName: 'Plan Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          commandOptions: '-out main.tfplan'
+          environmentServiceNameAWS: 'aws-terraform-svc'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformApply'
+        displayName: 'Apply Terraform'
+        condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
+        inputs:
+          provider: 'aws'
+          command: 'apply'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          commandOptions: 'main.tfplan'
+          environmentServiceNameAWS: 'aws-terraform-svc'
+
+
+#Stage 2 - Teardown Infrasturture
+- ${{ if eq(parameters.IsTeardownInfrastructure, true) }}:
+  - stage: InfrastructureTeardown
+    displayName: 'Infrastructure Teardown'
+    jobs:
+    - job: TerraformIaC
+      displayName: 'Infrastructure Teardown'
+      steps:
+
+      - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Initialize Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformPlan'
+        displayName: 'Plan Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          commandOptions: '-out main.tfplan'
+          environmentServiceNameAWS: 'aws-terraform-svc'
+
+      - task: TerraformTaskV4@4
+        name: 'terraformDestroy'
+        displayName: 'Destroy Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'destroy'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          environmentServiceNameAWS: 'aws-terraform-svc'

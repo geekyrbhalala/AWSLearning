@@ -2,9 +2,8 @@
 # Run following command into command prompt
 # setx AWS_ACCESS_KEY_ID "<AWS_Access_Key_id>"
 # setx AWS_SECRET_ACCESS_KEY "<AWS_Secret_Access_Key>"
-
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 resource "aws_vpc" "demo-vpc" {
@@ -115,6 +114,7 @@ resource "aws_security_group" "allow_tls" {
   description = "Allow TLS inbound traffic and all outbound traffic"
   tags = {
     Name = "allow_tls"
+    Description = "Allow TLS inbound traffic and all outbound"
   }
 }
 
@@ -127,6 +127,15 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   cidr_ipv4 = "0.0.0.0/0"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
+  security_group_id = aws_security_group.allow_tls.id
+  description = "Allow HTTP IPv4"
+  from_port = 80
+  ip_protocol = "tcp"
+  to_port = 80
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
   security_group_id = aws_security_group.allow_tls.id
   description = "Allow all traffic IPv6"
@@ -135,6 +144,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
 }
   
 
+# # EC2 Instance
 
 data "aws_ami" "amazon_linux" {
   most_recent = true
@@ -156,23 +166,14 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# Generate a new SSH key pair locally
-resource "tls_private_key" "example" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "aws_key_pair" "aws_instance_key" {
-  key_name   = "aws-ec2-instance-key"
-  public_key = tls_private_key.example.public_key_openssh
-}
-
 resource "aws_instance" "web" {
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.micro"
   associate_public_ip_address = true
   availability_zone           = "us-east-1a"
-  key_name                    = aws_key_pair.aws_instance_key.key_name
+  key_name                    = var.key_name
   vpc_security_group_ids      = [aws_security_group.allow_tls.id]
   subnet_id = aws_subnet.aws-demo-public-subnet-1.id
+  user_data = file("linux-server-user-data.sh") 
+  # if webpage doen't show up then use command "trail -3000 /var/log/cloud-init-output.log"
 }
