@@ -40,7 +40,12 @@ stages:
           command: 'plan'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: '-out main.tfplan'
-          environmentServiceNameAWS: 'aws-terraform-svc'
+          backendAWSRegion: 'us-east-1'
+          backendType: 's3'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
       - task: TerraformTaskV4@4
         displayName: 'Apply Terraform'
         condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
@@ -49,7 +54,12 @@ stages:
           command: 'apply'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: 'main.tfplan'
-          environmentServiceNameAWS: 'aws-terraform-svc'
+          backendAWSRegion: 'us-east-1'
+          backendType: 's3'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
 
 - ${{ if eq(parameters.IsTeardownInfrastructure, true) }}:
   - stage: InfrastructureTeardown
@@ -77,6 +87,11 @@ stages:
           provider: 'aws'
           command: 'destroy'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          environmentServiceNameAWS: 'aws-terraform-svc'
+          backendAWSRegion: 'us-east-1'
+          backendType: 's3'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
 
     
