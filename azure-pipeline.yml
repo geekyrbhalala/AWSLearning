@@ -1,9 +1,15 @@
+trigger: none
+
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  IsTeardownInfrastructure: 'false'
-  IsSetupInfrastructure: 'false'
+- name: IsTeardownInfrastructure
+  value: false
+  readonly: false
+- name: IsSetupInfrastructure
+  value: false
+  readonly: false
 
 stages:
 - stage: InfrastructureSetup
