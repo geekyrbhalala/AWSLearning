@@ -144,36 +144,36 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
 }
   
 
-# # EC2 Instance
+# # # EC2 Instance
 
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"] # Owned by Amazon
+# data "aws_ami" "amazon_linux" {
+#   most_recent = true
+#   owners      = ["amazon"] # Owned by Amazon
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
+#   filter {
+#     name   = "name"
+#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+#   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
 
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-}
+#   filter {
+#     name   = "root-device-type"
+#     values = ["ebs"]
+#   }
+# }
 
-resource "aws_instance" "web" {
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  availability_zone           = "us-east-1a"
-  key_name                    = var.key_name
-  vpc_security_group_ids      = [aws_security_group.allow_tls.id]
-  subnet_id = aws_subnet.aws-demo-public-subnet-1.id
-  user_data = file("linux-server-user-data.sh") 
-  # if webpage doen't show up then use command "trail -3000 /var/log/cloud-init-output.log"
-}
+# resource "aws_instance" "web" {
+#   ami                         = data.aws_ami.amazon_linux.id
+#   instance_type               = "t2.micro"
+#   associate_public_ip_address = true
+#   availability_zone           = "us-east-1a"
+#   key_name                    = var.key_name
+#   vpc_security_group_ids      = [aws_security_group.allow_tls.id]
+#   subnet_id = aws_subnet.aws-demo-public-subnet-1.id
+#   user_data = file("linux-server-user-data.sh") 
+#   # if webpage doen't show up then use command "trail -3000 /var/log/cloud-init-output.log"
+# }
