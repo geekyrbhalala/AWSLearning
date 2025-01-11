@@ -25,11 +25,9 @@ stages:
           provider: 'aws'
           command: 'init'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
@@ -64,11 +62,9 @@ stages:
           provider: 'aws'
           command: 'init'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
 
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
@@ -78,7 +74,6 @@ stages:
           command: 'plan'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           commandOptions: '-out main.tfplan'
-          backendAWSRegion: 'us-east-1'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
       - task: TerraformTaskV4@4
@@ -88,5 +83,4 @@ stages:
           provider: 'aws'
           command: 'destroy'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          backendAWSRegion: 'us-east-1'
           environmentServiceNameAWS: 'aws-terraform-svc'
