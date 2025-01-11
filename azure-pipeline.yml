@@ -22,9 +22,10 @@ stages:
       - task: TerraformTaskV4@4
         inputs:
           provider: 'aws'
-          command: 'init'
-          backendType: 's3'
+          command: 'init'         
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
@@ -63,6 +64,7 @@ stages:
           command: 'init'
           workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
           backendType: 's3'
+          backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
