@@ -12,6 +12,7 @@ parameters:
   default: false
 
 stages:
+#Stage 1 - Setup Infrastructure
 - ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
   - stage: InfrastructureSetup
     displayName: 'Infrastructure Setup'
@@ -62,8 +63,9 @@ stages:
     displayName: 'Infrastructure Teardown'
     jobs:
     - job: TerraformIaC
-      displayName: 'Run IaC'
+      displayName: 'Infrastructure Teardown'
       steps:
+
       - task: TerraformTaskV4@4
         name: 'terraformInit'
         displayName: 'Initialize Terraform'
