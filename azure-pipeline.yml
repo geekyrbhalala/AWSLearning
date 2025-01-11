@@ -28,9 +28,9 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendType: 's3'
           backendServiceAWS: 'aws-terraform-svc'
-          backendAwsBucket: 'terraform-state-for-demo-vpc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTable: 'terraform-locks'
+          backendAWSDynamoDBTableName: 'terraform-locks'
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
@@ -68,9 +68,9 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendType: 's3'
           backendServiceAWS: 'aws-terraform-svc'
-          backendAwsBucket: 'terraform-state-for-demo-vpc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTable: 'terraform-locks'
+          backendAWSDynamoDBTableName: 'terraform-locks'
 
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
