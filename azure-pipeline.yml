@@ -2,8 +2,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-- group: aws-secrets
-
+  IsTeardownInfrastructure: 'false'
 
 stages:
 - stage: InfrastructureSetup
@@ -18,9 +17,12 @@ stages:
         provider: 'aws'
         command: 'init'
         workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+        backendAWSRegion: 'us-east-1'
+        backendType: 's3'
         backendServiceAWS: 'aws-terraform-svc'
         backendAWSBucketName: 'terraform-state-for-demo-vpc'
         backendAWSKey: 'tf/terraform.tfstate'
+        backendAWSDynamoDBTableName: 'terraform-locks'
     - task: TerraformTaskV4@4
       name: 'terraformPlan'
       displayName: 'Plan Terraform'
@@ -38,6 +40,34 @@ stages:
         command: 'apply'
         workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
         commandOptions: 'main.tfplan'
+        environmentServiceNameAWS: 'aws-terraform-svc'
+
+- stage: InfrastructureTeardown
+  displayName: 'Infrastructure Teardown'
+  condition: eq(variables['IsTeardownInfrastructure'], 'true')
+  jobs:
+  - job: TerraformIaC
+    displayName: 'Run IaC'
+    steps:
+    - task: TerraformTaskV4@4
+      displayName: 'Initialize Terraform'
+      inputs:
+        provider: 'aws'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+        backendAWSRegion: 'us-east-1'
+        backendType: 's3'
+        backendServiceAWS: 'aws-terraform-svc'
+        backendAWSBucketName: 'terraform-state-for-demo-vpc'
+        backendAWSKey: 'tf/terraform.tfstate'
+        backendAWSDynamoDBTableName: 'terraform-locks'
+    - task: TerraformTaskV4@4
+      name: 'terraformDestroy'
+      displayName: 'Destroy Terraform'
+      inputs:
+        provider: 'aws'
+        command: 'destroy'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
         environmentServiceNameAWS: 'aws-terraform-svc'
 
     

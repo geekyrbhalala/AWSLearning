@@ -173,7 +173,7 @@ resource "tls_private_key" "example" {
 }
 
 resource "aws_key_pair" "aws_instance_key" {
-  key_name   = "aws-ec2-instance-key"
+  key_name   = var.key_name
   public_key = tls_private_key.example.public_key_openssh
 }
 
