@@ -49,6 +49,7 @@ stages:
           workingDirectory: '$(Build.SourcesDirectory)/IaC'
           commandOptions: >
             '-out main.tfplan'
+          environmentServiceNameAWS: 'aws-terraform-svc'
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Build.SourcesDirectory)/main.tfplan'
