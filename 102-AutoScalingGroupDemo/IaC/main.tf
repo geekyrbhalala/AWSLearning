@@ -76,13 +76,6 @@ resource "aws_route_table" "aws-demo-public-rt" {
 
 resource "aws_route_table" "aws-demo-private-rt" {
   vpc_id = aws_vpc.demo-vpc.id
-
-  #   route {
-  #     cidr_block = "11.0.1.0/24"
-  #     gateway_id = "local"
-  #   }
-
-  #   depends_on = [ aws_subnet.aws-demo-public-subnet-1, aws_subnet.aws-demo-public-subnet-3 ]
   tags = {
     Name = "aws-demo-public-rt"
   }

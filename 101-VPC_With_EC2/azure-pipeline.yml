@@ -3,6 +3,14 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  aws_region: 'us-east-1'
+  instance_type: 't2.micro'
+  vpc_name: 'demo-vpc'
+  main_cidr_block: '11.0.0.0/16'
+  subnet_cidr_block: '["11.0.1.0/24","11.0.2.0/24","11.0.3.0/24","11.0.4.0/24"]'
+  availability_zones: '["us-east-1a","us-east-1b","us-east-1c","us-east-1d"]'
+
 parameters:
 - name: IsSetupInfrastructure
   type: boolean
@@ -12,15 +20,14 @@ parameters:
   default: false
 
 stages:
-#Stage 1 - Setup Infrastructure
 - ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
-  - stage: InfrastructureSetup
-    displayName: 'Infrastructure Setup'
+  #Stage 1 - Terraform Initialization
+  - stage: Init
+    displayName: "Terraform Init Stage"
     jobs:
-    - job: TerraformIaC
-      displayName: 'Setup Infrastructure'
+    - job: Init
+      displayName: "Terraform Init Job"
       steps:
-
       - task: TerraformTaskV4@4
         name: 'terraformInit'
         displayName: 'Initialize Terraform'
@@ -34,17 +41,40 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
-
+  #Stage 2 - Terraform Plan
+  - stage: Plan
+    displayName: "Terraform Plan Stage"
+    jobs:
+    - job: Plan
+      displayName: "Terraform Plan Job"
+      steps:
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
         inputs:
           provider: 'aws'
           command: 'plan'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          commandOptions: '-out main.tfplan'
+          workingDirectory: '$(Build.SourcesDirectory)/IaC'
+          commandOptions: >
+            '-out main.tfplan'
+            -var 'instance_type=$(instance_type)'
+            -var 'vpc_name=$(vpc_name)'
+            -var 'main_cidr_block=$(main_cidr_block)'
+            -var 'subnet_cidr_block=$(subnet_cidr_block)'
+            -var 'availability_zones=$(availability_zones)'
           environmentServiceNameAWS: 'aws-terraform-svc'
-
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/main.tfplan'
+          artifactName: 'terraformPlan'
+          publishLocation: 'pipeline'
+  #Stage 3 - Terraform Apply
+  - stage: Apply
+    displayName: "Terraform Apply Stage"
+    jobs:
+    - job: Apply
+      displayName: "Terraform Apply Job"
+      steps:
       - task: TerraformTaskV4@4
         name: 'terraformApply'
         displayName: 'Apply Terraform'
