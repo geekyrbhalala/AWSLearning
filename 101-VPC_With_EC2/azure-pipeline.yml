@@ -35,19 +35,19 @@ stages:
             echo "The pipeline YAML file is located at:"
             echo "$(System.DefaultWorkingDirectory)"
             echo "You can append relative paths to this if needed."
-      - task: TerraformTaskV4@4
-        name: 'terraformInit'
-        displayName: 'Initialize Terraform'
-        inputs:
-          provider: 'aws'
-          command: 'init'         
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
-          backendType: 's3'
-          backendAWSRegion: 'us-east-1'
-          backendServiceAWS: 'aws-terraform-svc'
-          backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
-          backendAWSDynamoDBTableName: 'terraform-locks'
+      # - task: TerraformTaskV4@4
+      #   name: 'terraformInit'
+      #   displayName: 'Initialize Terraform'
+      #   inputs:
+      #     provider: 'aws'
+      #     command: 'init'         
+      #     workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+      #     backendType: 's3'
+      #     backendAWSRegion: 'us-east-1'
+      #     backendServiceAWS: 'aws-terraform-svc'
+      #     backendAWSBucketName: 'terraform-state-for-demo-vpc'
+      #     backendAWSKey: 'tf/terraform.tfstate'
+      #     backendAWSDynamoDBTableName: 'terraform-locks'
   #Stage 2 - Terraform Plan
   - stage: Plan
     displayName: "Terraform Plan Stage"
