@@ -3,14 +3,6 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  aws_region: 'us-east-1'
-  instance_type: 't2.micro'
-  vpc_name: 'demo-vpc'
-  main_cidr_block: '11.0.0.0/16'
-  subnet_cidr_block: "[\"11.0.1.0/24\", \"11.0.2.0/24\", \"11.0.3.0/24\", \"11.0.4.0/24\"]"
-  availability_zones: "[\"us-east-1a\", \"us-east-1b\", \"us-east-1c\", \"us-east-1d\"]"
-
 parameters:
 - name: IsSetupInfrastructure
   type: boolean
@@ -57,12 +49,6 @@ stages:
           workingDirectory: '$(Build.SourcesDirectory)/IaC'
           commandOptions: >
             '-out main.tfplan'
-            -var "instance_type=$(instance_type)"
-            -var "vpc_name=$(vpc_name)"
-            -var "main_cidr_block=$(main_cidr_block)"
-            -var "subnet_cidr_block=$(subnet_cidr_block)"
-            -var "availability_zones=$(availability_zones)"
-          environmentServiceNameAWS: 'aws-terraform-svc'
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Build.SourcesDirectory)/main.tfplan'
