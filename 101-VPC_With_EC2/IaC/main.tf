@@ -22,8 +22,8 @@ module "ec2" {
   associatePublicIPAddress = true
   availabilityZone         = "us-east-1a"
   keyName                  = var.key_name
-  securityGroupIds         = [vpc.security_group_id]
-  subnetId                 = vpc.public_subnet_ids[0]
+  securityGroupIds         = [module.vpc.security_group_id]
+  subnetId                 = module.vpc.public_subnet_ids[0]
   userData                 = file("linux-server-user-data.sh")
   instanceName             = "Linux-Public-Server"
   projectCode              = var.project_code
