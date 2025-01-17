@@ -59,6 +59,14 @@ stages:
     - job: Apply
       displayName: "Terraform Release Job"
       steps:
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: 'specific'
+          project: $(Build.Project)
+          definition: $(Build.DefinitionName)
+          buildId: $(Build.BuildId)
+          downloadType: 'single'
+          downloadPath: $(Pipeline.Workspace)
       - task: TerraformTaskV4@4
         name: 'terraformInit'
         displayName: 'Initialize Terraform'
@@ -78,7 +86,7 @@ stages:
           provider: 'aws'
           command: 'apply'
           workingDirectory: ${{variables.workingDirectory}}
-          commandOptions: 'main.tfplan'
+          commandOptions: ' $(Pipeline.Workspace)/terraformPlan/main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
 
