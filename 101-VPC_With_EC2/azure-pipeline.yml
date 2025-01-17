@@ -60,6 +60,18 @@ stages:
       displayName: "Terraform Release Job"
       steps:
       - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Initialize Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'init'         
+          workingDirectory: ${{variables.workingDirectory}}
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+      - task: TerraformTaskV4@4
         name: 'terraformApply'
         displayName: 'Apply Terraform'
         inputs:
