@@ -62,13 +62,17 @@ resource "aws_route_table" "aws-private-rt" {
 }
 
 resource "aws_route_table_association" "aws-public-rt-association" {
-  subnet_id      = aws_subnet.public-subnets[*].id
+  for_each = { for idx, subnet_id in aws_subnet.public-subnets : idx => subnet_id.id }
+  subnet_id      = each.value
   route_table_id = aws_route_table.aws-public-rt.id
+  depends_on = [ aws_subnet.public-subnets, aws_route_table.aws-public-rt ]
 }
 
 resource "aws_route_table_association" "aws-private-rt-association" {
-  subnet_id      = aws_subnet.private-subnets[*].id
+  for_each = { for idx, subnet_id in aws_subnet.private-subnets : idx => subnet_id.id }
+  subnet_id      = each.value
   route_table_id = aws_route_table.aws-private-rt.id
+  depends_on = [ aws_subnet.private-subnets, aws_route_table.aws-private-rt ]
 }
 
 resource "aws_security_group" "sg-allow_tls" {
