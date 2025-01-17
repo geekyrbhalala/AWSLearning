@@ -11,6 +11,9 @@ parameters:
   type: boolean
   default: false
 
+variables:
+  workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+
 stages:
 - ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
   #Stage 1 - Terraform Initialization
@@ -26,7 +29,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'init'         
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           backendType: 's3'
           backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
@@ -39,13 +42,13 @@ stages:
         inputs:
           provider: 'aws'
           command: 'plan'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
         inputs:
-          targetPath: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC/main.tfplan'
+          targetPath: ${{variables.workingDirectory}}
           artifactName: 'terraformPlan'
           publishLocation: 'pipeline'
       
@@ -63,7 +66,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'apply'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           commandOptions: 'main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
@@ -83,7 +86,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'init'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           backendType: 's3'
           backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
@@ -97,7 +100,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'plan'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
@@ -107,5 +110,5 @@ stages:
         inputs:
           provider: 'aws'
           command: 'destroy'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
+          workingDirectory: ${{variables.workingDirectory}}
           environmentServiceNameAWS: 'aws-terraform-svc'
