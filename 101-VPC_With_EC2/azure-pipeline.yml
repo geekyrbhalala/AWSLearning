@@ -45,7 +45,7 @@ stages:
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
         inputs:
-          targetPath: '$(System.DefaultWorkingDirectory)/main.tfplan'
+          targetPath: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC/main.tfplan'
           artifactName: 'terraformPlan'
           publishLocation: 'pipeline'
       
