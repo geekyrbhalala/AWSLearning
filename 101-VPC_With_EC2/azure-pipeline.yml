@@ -14,11 +14,11 @@ parameters:
 stages:
 - ${{ if eq(parameters.IsSetupInfrastructure, true) }}:
   #Stage 1 - Terraform Initialization
-  - stage: Init
-    displayName: "Terraform Init Stage"
+  - stage: Build
+    displayName: "Terraform Build"
     jobs:
-    - job: Init
-      displayName: "Terraform Init Job"
+    - job: Build
+      displayName: "Terraform Build Job"
       steps:
       - task: TerraformTaskV4@4
         name: 'terraformInit'
@@ -33,13 +33,6 @@ stages:
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
           backendAWSKey: 'tf/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
-  #Stage 2 - Terraform Plan
-  - stage: Plan
-    displayName: "Terraform Plan Stage"
-    jobs:
-    - job: Plan
-      displayName: "Terraform Plan Job"
-      steps:
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
         displayName: 'Plan Terraform'
@@ -50,16 +43,18 @@ stages:
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
       - task: PublishPipelineArtifact@1
+        displayName: 'Publish Terraform Plan'
         inputs:
           targetPath: '$(System.DefaultWorkingDirectory)/main.tfplan'
           artifactName: 'terraformPlan'
           publishLocation: 'pipeline'
-  #Stage 3 - Terraform Apply
-  - stage: Apply
-    displayName: "Terraform Apply Stage"
+      
+  #Stage 2 - Terraform Apply
+  - stage: Release
+    displayName: "Terraform Release"
     jobs:
     - job: Apply
-      displayName: "Terraform Apply Job"
+      displayName: "Terraform Release Job"
       steps:
       - task: TerraformTaskV4@4
         name: 'terraformApply'
