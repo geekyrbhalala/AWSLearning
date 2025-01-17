@@ -46,12 +46,12 @@ stages:
         inputs:
           provider: 'aws'
           command: 'plan'
-          workingDirectory: '$(Build.SourcesDirectory)/IaC'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: '$(Build.SourcesDirectory)/main.tfplan'
+          targetPath: '$(System.DefaultWorkingDirectory)/main.tfplan'
           artifactName: 'terraformPlan'
           publishLocation: 'pipeline'
   #Stage 3 - Terraform Apply
@@ -68,7 +68,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'apply'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
           commandOptions: 'main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
@@ -88,7 +88,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'init'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
           backendType: 's3'
           backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
@@ -102,7 +102,7 @@ stages:
         inputs:
           provider: 'aws'
           command: 'plan'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
           commandOptions: '-out main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
@@ -112,5 +112,5 @@ stages:
         inputs:
           provider: 'aws'
           command: 'destroy'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/IaC'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/101-VPC_With_EC2/IaC'
           environmentServiceNameAWS: 'aws-terraform-svc'
