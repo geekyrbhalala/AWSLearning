@@ -11,11 +11,10 @@ module "vpc" {
   vpcName = var.vpc_name
   cidrBlock = var.main_cidr_block
   projectCode = var.project_code
-  subnetCIDRBlocks = var.subnet_cidr_block
+  publicSubnetCIDRBlocks = var.public_subnet_cidr_block
+  privateSubnetCIDRBlocks = var.private_subnet_cidr_block
   availabilityZones = var.availability_zones
 }
-
-
 
 module "ec2" {
   source                   = "../../000-Modules/EC2/Linux"
@@ -23,8 +22,8 @@ module "ec2" {
   associatePublicIPAddress = true
   availabilityZone         = "us-east-1a"
   keyName                  = var.key_name
-  securityGroupIds         = [aws_security_group.allow_tls.id]
-  subnetId                 = aws_subnet.aws-demo-public-subnet-1.id
+  securityGroupIds         = [vpc.security_group_id]
+  subnetId                 = vpc.public_subnet_ids[0]
   userData                 = file("linux-server-user-data.sh")
   instanceName             = "Linux-Public-Server"
   projectCode              = var.project_code

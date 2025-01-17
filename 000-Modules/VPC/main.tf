@@ -7,46 +7,26 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-resource "aws_subnet" "public-subnet-1" {
+resource "aws_subnet" "public-subnets" {
+  count = length(var.publicSubnetCIDRBlocks)
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = var.subnetCIDRBlocks[0] #"11.0.1.0/24"
-  availability_zone = var.availabilityZones[0]
+  cidr_block        = var.publicSubnetCIDRBlocks[count.index]
+  availability_zone = var.availabilityZones[count.index]
 
   tags = {
-    Name        = "${var.projectCode}-public-subnet-1"
+    Name        = "${var.projectCode}-public-subnet-${count.index+1}"
     ProjectCode = var.projectCode
   }
 }
 
-resource "aws_subnet" "public-subnet-2" {
+resource "aws_subnet" "private-subnets" {
+  count = length(var.privateSubnetCIDRBlocks)
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = var.subnetCIDRBlocks[1] #"11.0.3.0/24"
-  availability_zone = var.availabilityZones[1]
+  cidr_block        = var.privateSubnetCIDRBlocks[count.index]
+  availability_zone = var.availabilityZones[count.index]
 
   tags = {
-    Name        = "${var.projectCode}-public-subnet-2"
-    ProjectCode = var.projectCode
-  }
-}
-
-resource "aws_subnet" "private-subnet-1" {
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = var.subnetCIDRBlocks[2] #"11.0.2.0/24"
-  availability_zone = var.availabilityZones[2]
-
-  tags = {
-    Name        = "${var.projectCode}-private-subnet-1"
-    ProjectCode = var.projectCode
-  }
-}
-
-resource "aws_subnet" "private-subnet-2" {
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = var.subnetCIDRBlocks[3] #"11.0.4.0/24"
-  availability_zone = var.availabilityZones[3]
-
-  tags = {
-    Name        = "${var.projectCode}-private-subnet-2"
+    Name        = "${var.projectCode}-private-subnet-${count.index+1}"
     ProjectCode = var.projectCode
   }
 }
@@ -76,32 +56,22 @@ resource "aws_route_table" "aws-public-rt" {
 resource "aws_route_table" "aws-private-rt" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name        = "${var.projectCode}-public-rt"
+    Name        = "${var.projectCode}-private-rt"
     ProjectCode = var.projectCode
   }
 }
 
-resource "aws_route_table_association" "aws-public-rt_a1" {
-  subnet_id      = aws_subnet.aws-public-subnet-1.id
+resource "aws_route_table_association" "aws-public-rt-association" {
+  subnet_id      = aws_subnet.public-subnets[*].id
   route_table_id = aws_route_table.aws-public-rt.id
 }
 
-resource "aws_route_table_association" "aws-public-rt_a2" {
-  subnet_id      = aws_subnet.aws-public-subnet-3.id
-  route_table_id = aws_route_table.aws-public-rt.id
-}
-
-resource "aws_route_table_association" "aws-private-rt_a3" {
-  subnet_id      = aws_subnet.aws-private-subnet-2.id
+resource "aws_route_table_association" "aws-public-rt-association" {
+  subnet_id      = aws_subnet.private-subnets[*].id
   route_table_id = aws_route_table.aws-private-rt.id
 }
 
-resource "aws_route_table_association" "aws-private-rt_a4" {
-  subnet_id      = aws_subnet.aws-private-subnet-4.id
-  route_table_id = aws_route_table.aws-private-rt.id
-}
-
-resource "aws_security_group" "allow_tls" {
+resource "aws_security_group" "sg-allow_tls" {
   name        = "allow_tls"
   vpc_id      = aws_vpc.vpc.id
   description = "Allow TLS inbound traffic and all outbound traffic"
@@ -114,17 +84,52 @@ resource "aws_security_group" "allow_tls" {
 
 module "egress_allow_all_traffic" {
   source = "./EgressRules/AllowAllTraffic"
-  securityGroupId = aws_security_group.allow_tls.id
+  securityGroupId = aws_security_group.sg-allow_tls.id
 }
 
+module "ingress_allow_ssh_traffic" {
+  source = "./IngressRules/AllowSSH_Port22"
+  securityGroupId = aws_security_group.sg-allow_tls.id
+}
+
+module "ingress_allow_http_traffic" {
+  source = "./IngressRules/AllowHTTP_Port80"
+  securityGroupId = aws_security_group.sg-allow_tls.id
+}
+
+
+// Variables
 variable "cidrBlock" {}
 variable "vpcName" {}
 variable "projectCode" {}
 
-variable "subnetCIDRBlocks" {
+variable "publicSubnetCIDRBlocks" {
+  type = list(string)
+}
+
+variable "privateSubnetCIDRBlocks" {
   type = list(string)
 }
 
 variable "availabilityZones" {
   type = list(string)
 }
+
+
+// Output variables
+output "vpc_id" {
+  value = aws_vpc.vpc.id
+}
+
+output "public_subnet_ids" {
+  value = aws_subnet.public-subnets[*].id
+}
+
+output "private_subnet_ids" {
+  value = aws_subnet.private-subnets[*].id
+}
+
+output "security_group_id" {
+  value = aws_security_group.sg-allow_tls.id
+}
+
