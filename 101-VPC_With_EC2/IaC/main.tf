@@ -1,7 +1,3 @@
-# Step -1 
-# Run following command into command prompt
-# setx AWS_ACCESS_KEY_ID "<AWS_Access_Key_id>"
-# setx AWS_SECRET_ACCESS_KEY "<AWS_Secret_Access_Key>"
 provider "aws" {
   region = var.aws_region
 }
@@ -20,7 +16,7 @@ module "ec2" {
   source                   = "../../000-Modules/EC2/Linux"
   instanceType             = var.instance_type
   associatePublicIPAddress = true
-  availabilityZone         = "us-east-1a"
+  availabilityZone         = var.availability_zones[0]
   keyName                  = var.key_name
   securityGroupIds         = [module.vpc.security_group_id]
   subnetId                 = module.vpc.public_subnet_ids[0]
