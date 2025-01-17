@@ -61,6 +61,7 @@ resource "aws_launch_template" "template" {
   # Tag the instance
   tags = {
     Name = "${var.projectCode}-${var.instanceName}"
+    ProjectCode = var.projectCode
   }
 
   # Instance Metadata Options (optional)
