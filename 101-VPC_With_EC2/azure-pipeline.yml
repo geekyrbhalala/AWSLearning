@@ -82,7 +82,7 @@ stages:
           provider: 'aws'
           command: 'apply'
           workingDirectory: ${{variables.workingDirectory}}
-          commandOptions: '-input=false $(Pipeline.Workspace)/terraformPlan/terraformPlan/main.tfplan'
+          commandOptions: '-input=false $(Pipeline.Workspace)/main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
 
