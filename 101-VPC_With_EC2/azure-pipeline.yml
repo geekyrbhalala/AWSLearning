@@ -50,7 +50,6 @@ stages:
         inputs:
           targetPath: ${{variables.workingDirectory}}
           artifactName: 'terraformPlan'
-          publishLocation: 'pipeline'
       
   #Stage 2 - Terraform Apply
   - stage: Release
@@ -83,7 +82,7 @@ stages:
           provider: 'aws'
           command: 'apply'
           workingDirectory: ${{variables.workingDirectory}}
-          commandOptions: '-input=false $(Pipeline.Workspace)/terraformPlan/main.tfplan'
+          commandOptions: '-input=false $(Pipeline.Workspace)/terraformPlan/terraformPlan/main.tfplan'
           environmentServiceNameAWS: 'aws-terraform-svc'
 
 
