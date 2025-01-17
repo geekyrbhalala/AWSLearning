@@ -156,11 +156,6 @@ variable "deleteOnTermination" {
   default     = true
 }
 
-variable "instanceName" {
-  description = "The name of the EC2 instance"
-  type        = string
-}
-
 variable "httpTokens" {
   description = "Whether to enforce the use of IAM roles for instance metadata"
   type        = string
