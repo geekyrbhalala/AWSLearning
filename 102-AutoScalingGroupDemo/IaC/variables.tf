@@ -43,3 +43,15 @@ variable "private_subnet_cidr_block" {
   description = "List of CIDR block of private subnet. i.e. [10.0.1.0/24,10.0.2.0/24]"
   default     = ["12.0.3.0/24", "12.0.4.0/24"]
 }
+
+variable "max_size" {
+  default = 2
+}
+
+variable "min_size" {
+  default = 1
+}
+
+variable "desired_capacity" {
+  default = 1
+}

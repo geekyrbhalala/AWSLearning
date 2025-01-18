@@ -29,3 +29,67 @@ module "launch_template" {
   userData           = filebase64("linux-server-user-data.sh")
   instanceName       = "Linux-Public-Server"
 }
+
+resource "aws_lb_target_group" "target_group" {
+  name        = "${var.project_code}targetgroup"
+  target_type = "instance"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = module.vpc.vpc_id
+  tags = {
+    ProjectCode = var.project_code
+  }
+}
+
+resource "aws_lb" "application_load_balancer" {
+  name                       = "${var.project_code}loadbalancer"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [module.vpc.security_group_id]
+  subnets                    = module.vpc.public_subnet_ids
+  enable_deletion_protection = true
+  idle_timeout               = 60
+  enable_http2               = true
+  tags = {
+    ProjectCode = var.project_code
+  }
+}
+
+resource "aws_lb_listener" "http_listner" {
+  load_balancer_arn = aws_lb.application_load_balancer.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      protocol    = "HTTPS"
+      port        = "443"
+      status_code = "HTTP_301"
+    }
+  }
+
+  tags = {
+    ProjectCode = var.project_code
+  }
+}
+
+
+resource "aws_autoscaling_group" "auto_scaling_group" {
+  name                      = "${var.project_code}autoscalinggroup"
+  max_size                  = var.max_size
+  min_size                  = var.min_size
+  desired_capacity          = var.desired_capacity
+  health_check_grace_period = 20
+  health_check_type         = "ELB"
+  force_delete              = true
+  vpc_zone_identifier       = module.vpc.public_subnet_ids
+  target_group_arns         = [aws_lb.application_load_balancer.arn]
+  launch_template {
+    id      = module.launch_template.launch_template_id
+    version = "$Latest"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
