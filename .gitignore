@@ -17,3 +17,6 @@ override.tf
 
 # Ignore lock file (optional)
 .terraform.lock.hcl
+
+# Ignore plan file
+*.tfplan

@@ -1,0 +1,78 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraformWorkingDirectory: '$(System.DefaultWorkingDirectory)/102-AutoScalingGroupDemo/IaC'
+  terraformPlanFileName: 'main.tfplan'
+
+stages:
+  #Stage 1 - Terraform Initialization
+  - stage: Build
+    displayName: "Terraform Build"
+    jobs:
+    - job: Build
+      displayName: "Terraform Build Job"
+      steps:
+      - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Initialize Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'init'         
+          workingDirectory: ${{variables.terraformWorkingDirectory}}
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf-102/terraform.tfstate'
+          backendAWSDynamoDBTableName: 'terraform-locks'
+      - task: TerraformTaskV4@4
+        name: 'terraformPlan'
+        displayName: 'Plan Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'plan'
+          workingDirectory: ${{variables.terraformWorkingDirectory}}
+          commandOptions: '-out ${{variables.terraformPlanFileName}}'
+          environmentServiceNameAWS: 'aws-terraform-svc'
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Terraform Plan'
+        inputs:
+          targetPath: ${{variables.terraformWorkingDirectory}}/${{variables.terraformPlanFileName}}
+          artifactName: 'terraformPlan'
+      
+  #Stage 2 - Terraform Apply
+  - stage: Release
+    displayName: "Terraform Release"
+    jobs:
+    - job: Apply
+      displayName: "Terraform Release Job"
+      steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Terraform Plan Artifact'
+        inputs:
+          artifactName: 'terraformPlan'
+          targetPath: $(Pipeline.Workspace)
+      - task: TerraformTaskV4@4
+        name: 'terraformInit'
+        displayName: 'Initialize Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'init'         
+          workingDirectory: ${{variables.terraformWorkingDirectory}}
+          backendType: 's3'
+          backendAWSRegion: 'us-east-1'
+          backendServiceAWS: 'aws-terraform-svc'
+          backendAWSBucketName: 'terraform-state-for-demo-vpc'
+          backendAWSKey: 'tf/terraform.tfstate'
+      - task: TerraformTaskV4@4
+        name: 'terraformApply'
+        displayName: 'Apply Terraform'
+        inputs:
+          provider: 'aws'
+          command: 'apply'
+          workingDirectory: ${{variables.terraformWorkingDirectory}}
+          commandOptions: '-input=false $(Pipeline.Workspace)/${{variables.terraformPlanFileName}}'
+          environmentServiceNameAWS: 'aws-terraform-svc'
