@@ -68,7 +68,7 @@ resource "aws_lb_listener" "http_listner" {
       status_code = "HTTP_301"
     }
   }
-
+  depends_on = [ aws_lb.application_load_balancer ]
   tags = {
     ProjectCode = var.project_code
   }
@@ -84,12 +84,12 @@ resource "aws_autoscaling_group" "auto_scaling_group" {
   health_check_type         = "ELB"
   force_delete              = true
   vpc_zone_identifier       = module.vpc.public_subnet_ids
-  target_group_arns         = [aws_lb.application_load_balancer.arn]
+  target_group_arns         = [aws_lb_target_group.target_group.arn]
   launch_template {
     id      = module.launch_template.launch_template_id
     version = "$Latest"
   }
-  depends_on = [ aws_lb.application_load_balancer ]
+  depends_on = [ aws_lb.application_load_balancer, aws_lb_listener.http_listner ]
   lifecycle {
     create_before_destroy = true
   }
