@@ -47,7 +47,7 @@ resource "aws_lb" "application_load_balancer" {
   load_balancer_type         = "application"
   security_groups            = [module.vpc.security_group_id]
   subnets                    = module.vpc.public_subnet_ids
-  enable_deletion_protection = true
+  enable_deletion_protection = false
   idle_timeout               = 60
   enable_http2               = true
   tags = {
