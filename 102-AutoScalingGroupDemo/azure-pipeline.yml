@@ -25,7 +25,7 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf/terraform.tfstate'
+          backendAWSKey: 'tf-102/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
       - task: TerraformTaskV4@4
         name: 'terraformPlan'

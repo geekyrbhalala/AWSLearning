@@ -89,6 +89,7 @@ resource "aws_autoscaling_group" "auto_scaling_group" {
     id      = module.launch_template.launch_template_id
     version = "$Latest"
   }
+  depends_on = [ aws_lb.application_load_balancer ]
   lifecycle {
     create_before_destroy = true
   }
