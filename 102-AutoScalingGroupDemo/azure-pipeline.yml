@@ -39,7 +39,7 @@ stages:
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
         inputs:
-          targetPath: ${{variables.workingDirectory}}
+          targetPath: ${{variables.workingDirectory}}/main.tfplan
           artifactName: 'terraformPlan'
       
   #Stage 2 - Terraform Apply
