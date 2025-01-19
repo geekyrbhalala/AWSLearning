@@ -92,7 +92,7 @@ resource "aws_autoscaling_group" "auto_scaling_group" {
   health_check_type         = "ELB"
   force_delete              = true
   vpc_zone_identifier       = module.vpc.public_subnet_ids
-  availability_zones        = data.aws_availability_zones.available.names
+  availability_zones        = [data.aws_availability_zones.available.names[0],data.aws_availability_zones.available.names[1]]
   target_group_arns         = [aws_lb_target_group.target_group.arn]
   launch_template {
     id      = module.launch_template.launch_template_id
