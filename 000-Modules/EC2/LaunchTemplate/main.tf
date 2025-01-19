@@ -31,7 +31,6 @@ resource "aws_launch_template" "template" {
   # Network settings
   network_interfaces {
     associate_public_ip_address = var.associatePublicIPAddress
-    subnet_id = var.subnetId
     security_groups = var.securityGroupIds
   }
 

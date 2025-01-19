@@ -36,6 +36,16 @@ resource "aws_lb_target_group" "target_group" {
   port        = 80
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
+  health_check {
+    interval = 30
+    path = "/"
+    port = "traffic-port"
+    protocol = "HTTP"
+    timeout = 5
+    healthy_threshold = 3
+    unhealthy_threshold = 3
+    matcher = "200-299"
+  }
   tags = {
     ProjectCode = var.project_code
   }
@@ -60,14 +70,12 @@ resource "aws_lb_listener" "http_listner" {
   port              = "80"
   protocol          = "HTTP"
 
+
   default_action {
-    type = "redirect"
-    redirect {
-      protocol    = "HTTPS"
-      port        = "443"
-      status_code = "HTTP_301"
-    }
+    type = "forward"
+    target_group_arn = aws_lb_target_group.target_group.arn
   }
+
   depends_on = [ aws_lb.application_load_balancer ]
   tags = {
     ProjectCode = var.project_code
@@ -84,6 +92,7 @@ resource "aws_autoscaling_group" "auto_scaling_group" {
   health_check_type         = "ELB"
   force_delete              = true
   vpc_zone_identifier       = module.vpc.public_subnet_ids
+  availability_zones        = data.aws_availability_zones.available.names
   target_group_arns         = [aws_lb_target_group.target_group.arn]
   launch_template {
     id      = module.launch_template.launch_template_id

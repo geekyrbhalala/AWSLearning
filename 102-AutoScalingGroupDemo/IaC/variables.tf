@@ -45,7 +45,7 @@ variable "private_subnet_cidr_block" {
 }
 
 variable "max_size" {
-  default = 2
+  default = 3
 }
 
 variable "min_size" {
@@ -53,5 +53,5 @@ variable "min_size" {
 }
 
 variable "desired_capacity" {
-  default = 1
+  default = 2
 }
