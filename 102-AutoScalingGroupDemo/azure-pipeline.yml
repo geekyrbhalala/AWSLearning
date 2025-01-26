@@ -37,11 +37,20 @@ stages:
           workingDirectory: ${{variables.terraformWorkingDirectory}}
           commandOptions: '-out ${{variables.terraformPlanFileName}}'
           environmentServiceNameAWS: 'aws-terraform-svc'
+      - script: |
+         terraform graph > graph.dot
+         dot -Tpng graph.dot -o graph.png
+        displayName: 'Generate Terraform Graph and Convert to PNG'
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
         inputs:
           targetPath: ${{variables.terraformWorkingDirectory}}/${{variables.terraformPlanFileName}}
           artifactName: 'terraformPlan'
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Terraform Graph'
+        inputs:
+          targetPath: ${{variables.terraformWorkingDirectory}}/graph.png
+          artifactName: 'terraformGraph'
       
   #Stage 2 - Terraform Apply
   - stage: Release
