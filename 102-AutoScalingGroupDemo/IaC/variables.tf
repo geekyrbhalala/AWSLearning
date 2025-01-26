@@ -10,7 +10,7 @@ variable "aws_region" {
 
 variable "key_name" {
   description = "SSH key name"
-  default     = "aws-ec2-instance-key"
+  default     = "ec2-universal-key"
 }
 
 variable "launch_template_name" {
