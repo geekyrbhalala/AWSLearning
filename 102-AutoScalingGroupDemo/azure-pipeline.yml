@@ -38,6 +38,10 @@ stages:
           commandOptions: '-out ${{variables.terraformPlanFileName}}'
           environmentServiceNameAWS: 'aws-terraform-svc'
       - script: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+        displayName: 'Install Graphviz'
+      - script: |
          terraform graph > graph.dot
          dot -Tpng graph.dot -o graph.png
         displayName: 'Generate Terraform Graph and Convert to PNG'
