@@ -40,13 +40,9 @@ stages:
       - script: |
           sudo apt-get update
           sudo apt-get install -y graphviz
-        displayName: 'Install Graphviz'
-      - script: |
           cd ${{variables.terraformWorkingDirectory}}
           terraform graph > graph.dot
           dot -Tpng graph.dot -o graph.png
-          # List files to check if graph.png is generated
-          ls -l ${{variables.terraformWorkingDirectory}}
         displayName: 'Generate Terraform Graph and Convert to PNG'
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
