@@ -75,32 +75,6 @@ resource "aws_route_table_association" "aws-private-rt-association" {
   depends_on = [ aws_subnet.private-subnets, aws_route_table.aws-private-rt ]
 }
 
-resource "aws_security_group" "sg-allow_tls" {
-  name        = "allow_tls"
-  vpc_id      = aws_vpc.vpc.id
-  description = "Allow TLS inbound traffic and all outbound traffic"
-  tags = {
-    Name        = "${var.projectCode}-allow_tls"
-    Description = "Allow TLS inbound traffic and all outbound"
-    ProjectCode = var.projectCode
-  }
-}
-
-module "egress_allow_all_traffic" {
-  source = "./EgressRules/AllowAllTraffic"
-  securityGroupId = aws_security_group.sg-allow_tls.id
-}
-
-module "ingress_allow_ssh_traffic" {
-  source = "./IngressRules/AllowSSH_Port22"
-  securityGroupId = aws_security_group.sg-allow_tls.id
-}
-
-module "ingress_allow_http_traffic" {
-  source = "./IngressRules/AllowHTTP_Port80"
-  securityGroupId = aws_security_group.sg-allow_tls.id
-}
-
 
 // Variables
 variable "cidrBlock" {}
@@ -133,7 +107,10 @@ output "private_subnet_ids" {
   value = aws_subnet.private-subnets[*].id
 }
 
-output "security_group_id" {
-  value = aws_security_group.sg-allow_tls.id
+output "az_and_subnet" {
+  value = {
+    az     = aws_subnet.public-subnets[0].availability_zone
+    subnet = aws_subnet.public-subnets[0].id
+  }
 }
 

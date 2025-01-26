@@ -5,7 +5,8 @@ pool:
 
 variables:
   terraformWorkingDirectory: '$(System.DefaultWorkingDirectory)/102-AutoScalingGroupDemo/IaC'
-  terraformPlanFileName: 'main.tfplan'
+  terraformPlanFileName: 'main-102.tfplan'
+  projectCode: '102'
 
 stages:
   #Stage 1 - Terraform Initialization
@@ -26,7 +27,7 @@ stages:
           backendAWSRegion: 'us-east-1'
           backendServiceAWS: 'aws-terraform-svc'
           backendAWSBucketName: 'terraform-state-for-demo-vpc'
-          backendAWSKey: 'tf-102/terraform.tfstate'
+          backendAWSKey: 'tf-${{variables.projectCode}}/terraform.tfstate'
           backendAWSDynamoDBTableName: 'terraform-locks'
       - task: TerraformTaskV4@4
         name: 'terraformPlan'
@@ -37,11 +38,23 @@ stages:
           workingDirectory: ${{variables.terraformWorkingDirectory}}
           commandOptions: '-out ${{variables.terraformPlanFileName}}'
           environmentServiceNameAWS: 'aws-terraform-svc'
+      - script: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+          cd ${{variables.terraformWorkingDirectory}}
+          terraform graph > graph.dot
+          dot -Tpng graph.dot -o 'graph-${{variables.projectCode}}.png'
+        displayName: 'Generate Terraform Graph and Convert to PNG'
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Terraform Plan'
         inputs:
           targetPath: ${{variables.terraformWorkingDirectory}}/${{variables.terraformPlanFileName}}
           artifactName: 'terraformPlan'
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Terraform Graph'
+        inputs:
+          targetPath: ${{variables.terraformWorkingDirectory}}/graph-${{variables.projectCode}}.png
+          artifactName: 'terraformGraph'
       
   #Stage 2 - Terraform Apply
   - stage: Release
